@@ -23,38 +23,21 @@ The **No-Look Contextual Note Taker** solves a deeply human problem: chaotic, un
 The core of the application is powered by a multi-agent Directed Acyclic Graph (DAG) orchestrated using **LangGraph**. The workflow dynamically routes, processes, and structures user inputs.
 
 ### Architecture Flowchart
-```text
-                 [ User Input ]
-             (Text or .mp3 Audio)
-                      │
-                      ▼
-               Ingestion Layer
-                      │
-                      ▼
-            ┌───────────────────┐
-            │  Classifier Node  │ (Gemini 2.5)
-            └─────────┬─────────┘
-                      │
-         Determines payload intent
-                      │
-     ┌────────────────┼────────────────┐
-     │                │                │
-     ▼ (has_tasks)    ▼ (has_calendar) ▼ (has_study)
-┌───────────┐    ┌───────────┐    ┌───────────┐
-│   Task    │    │ Calendar  │    │   Study   │
-│ Extractor │    │ Extractor │    │ Extractor │ (Extractors run in parallel)
-└─────┬─────┘    └─────┬─────┘    └─────┬─────┘
-      │                │                │
-      └────────────────┼────────────────┘
-                       │
-                       ▼
-             ┌───────────────────┐
-             │ Synthesizer Node  │ (Merges outputs)
-             └─────────┬─────────┘
-                       │
-                       ▼
-            Streamlit Dashboard UI
-            (Persistent st.session_state)
+```mermaid
+graph TD
+    A[Text Dump] --> C{Classifier Node / Router}
+    B[Audio File .mp3/.wav] --> C
+    
+    C -- has_study_content = True --> D[Study Extractor]
+    C -- has_tasks = True --> E[Task Extractor]
+    C -- has_calendar_events = True --> F[Calendar Extractor]
+    C -- If False --> S[Skip Node to Save API Costs]
+    
+    D --> G((Synthesizer Node))
+    E --> G
+    F --> G
+    
+    G --> H[Streamlit Persistent UI]
 ```
 
 ### In-Depth Component Breakdown

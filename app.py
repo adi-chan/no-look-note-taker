@@ -22,7 +22,7 @@ TEST_CASES = {
 
 st.set_page_config(page_title="No-Look Note Taker", layout="wide")
 
-st.title("🧠 No-Look Contextual Note Taker")
+st.title("No-Look Contextual Note Taker")
 st.markdown("Dump your chaotic thoughts, voice transcripts, or OCR text below. The agent will classify and organize them automatically.")
 
 # --- Sidebar ---

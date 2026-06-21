@@ -8,7 +8,6 @@ https://github.com/user-attachments/assets/8de44dca-2780-4f4b-b0f2-1a7a2f216702
 
 
 
-A highly advanced "Vibe Coding" capstone project built for the Gemini Developer Competition.
 
 The **No-Look Contextual Note Taker** solves a deeply human problem: chaotic, unstructured, panicked brain dumps. Whether you are running late to class and typing a disorganized paragraph, or speaking a panicked voice memo into your phone, this agentic app listens, untangles your thoughts, and perfectly organizes them.
 

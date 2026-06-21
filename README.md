@@ -3,7 +3,10 @@
 ![App Screenshot](ss_vids/screenshot.png)
 
 ### 🎥 Watch the Demo Video
-*(Drag and drop your video.mp4 here in the GitHub editor!)*
+
+https://github.com/user-attachments/assets/8de44dca-2780-4f4b-b0f2-1a7a2f216702
+
+
 
 A highly advanced "Vibe Coding" capstone project built for the Gemini Developer Competition.
 

@@ -18,12 +18,65 @@ The **No-Look Contextual Note Taker** solves a deeply human problem: chaotic, un
 - **Structured Pydantic Outputs**: The LLM is forced to return strict JSON structures, guaranteeing the UI never hallucinates or breaks.
 - **Persistent Organizer Hub**: Built with Streamlit, the app acts as a permanent dashboard where tasks and events stack up until you manually check them off.
 
-## Architecture
-The app leverages a state-graph architecture via LangGraph:
-1. `raw_input` (Audio/Text) -> **Classifier Node** (Gemini)
-2. **Router** determines what data is present.
-3. Parallel execution of **StudyExtractor**, **TaskExtractor**, and **CalendarExtractor**.
-4. **Synthesizer** combines structured JSON and passes it to the Streamlit UI.
+## System Architecture
+
+The core of the application is powered by a multi-agent Directed Acyclic Graph (DAG) orchestrated using **LangGraph**. The workflow dynamically routes, processes, and structures user inputs.
+
+### Architecture Flowchart
+```text
+                 [ User Input ]
+             (Text or .mp3 Audio)
+                      │
+                      ▼
+               Ingestion Layer
+                      │
+                      ▼
+            ┌───────────────────┐
+            │  Classifier Node  │ (Gemini 2.5)
+            └─────────┬─────────┘
+                      │
+         Determines payload intent
+                      │
+     ┌────────────────┼────────────────┐
+     │                │                │
+     ▼ (has_tasks)    ▼ (has_calendar) ▼ (has_study)
+┌───────────┐    ┌───────────┐    ┌───────────┐
+│   Task    │    │ Calendar  │    │   Study   │
+│ Extractor │    │ Extractor │    │ Extractor │ (Extractors run in parallel)
+└─────┬─────┘    └─────┬─────┘    └─────┬─────┘
+      │                │                │
+      └────────────────┼────────────────┘
+                       │
+                       ▼
+             ┌───────────────────┐
+             │ Synthesizer Node  │ (Merges outputs)
+             └─────────┬─────────┘
+                       │
+                       ▼
+            Streamlit Dashboard UI
+            (Persistent st.session_state)
+```
+
+### In-Depth Component Breakdown
+
+**1. Ingestion Layer**
+* **Audio Input:** Native processing of audio (`.mp3`/`.wav`) using Gemini's multimodal audio understanding capability, skipping traditional speech-to-text translation.
+* **Text Input:** Direct parsing of disorganized text blocks.
+
+**2. Classifier Node (Router)**
+The Classifier acts as the orchestrator:
+* It reads the input and classifies it against a Pydantic schema (e.g. `has_tasks`, `has_calendar_events`, `has_study_notes`).
+* By evaluating these flags, the graph utilizes **conditional edges** to only trigger the extraction nodes that are needed. If `has_calendar_events` is `False`, the Calendar node is completely bypassed, saving API cost and execution latency.
+
+**3. Parallel Extraction Agents**
+Each extractor is a specialized agent bound to a strict output schema:
+* **Task Extractor:** Extracts to-do items, urgency, and categories.
+* **Calendar Extractor:** Identifies meeting names, dates, times, and durations.
+* **Study Extractor:** Synthesizes educational concepts, definitions, and summaries.
+
+**4. Synthesizer & State Management**
+* The results from the active extractors are collected and unified.
+* The state is pushed to the Streamlit UI, where the dashboard appends the new objects into `st.session_state` to prevent data loss across multiple inputs.
 
 ## How to Run Locally
 

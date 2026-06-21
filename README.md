@@ -1,6 +1,8 @@
 # No-Look Contextual Note Taker
 
-![App Screenshot](https://via.placeholder.com/800x400.png?text=No-Look+Contextual+Note+Taker)
+![App Screenshot](ss_vids/screenshot.png)
+
+[**Watch the Demo Video**](ss_vids/video.mp4)
 
 A highly advanced "Vibe Coding" capstone project built for the Gemini Developer Competition.
 

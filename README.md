@@ -2,7 +2,8 @@
 
 ![App Screenshot](ss_vids/screenshot.png)
 
-[**Watch the Demo Video**](ss_vids/video.mp4)
+### 🎥 Watch the Demo Video
+<video src="ss_vids/video.mp4" controls width="100%"></video>
 
 A highly advanced "Vibe Coding" capstone project built for the Gemini Developer Competition.
 

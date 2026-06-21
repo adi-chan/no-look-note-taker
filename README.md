@@ -3,7 +3,7 @@
 ![App Screenshot](ss_vids/screenshot.png)
 
 ### 🎥 Watch the Demo Video
-<video src="https://raw.githubusercontent.com/adi-chan/no-look-note-taker/main/ss_vids/video.mp4" controls="controls" width="100%"></video>
+*(Drag and drop your video.mp4 here in the GitHub editor!)*
 
 A highly advanced "Vibe Coding" capstone project built for the Gemini Developer Competition.
 

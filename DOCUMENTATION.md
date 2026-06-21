@@ -6,8 +6,35 @@ This document explains the technical architecture and logic powering the No-Look
 
 The core of the application is a Directed Acyclic Graph (DAG) managed by LangGraph. Instead of relying on a single, massive prompt to do everything at once, the workload is distributed across specialized "nodes." This makes the system faster, highly accurate, and cost-efficient.
 
-The workflow follows this path:
-Input -> Classifier Node -> [Parallel Extraction Nodes] -> Synthesizer -> UI
+The workflow is managed dynamically:
+
+```mermaid
+graph TD
+    subgraph Ingestion Layer
+        A1[📝 Text Dump] --> B
+        A2[🎙️ Audio File .mp3/.wav] --> B
+    end
+    
+    B{Classifier Node / Router}
+    
+    subgraph Parallel Extraction
+        B -->|has_study_content = True| C[📚 Study Extractor]
+        B -->|has_tasks = True| D[✅ Task Extractor]
+        B -->|has_calendar_events = True| E[📅 Calendar Extractor]
+        
+        B -.->|If False| Skip[Skip Node to Save API Costs]
+    end
+    
+    C --> F
+    D --> F
+    E --> F
+    
+    F((Synthesizer Node))
+    
+    subgraph Frontend
+        F --> G[🖥️ Streamlit Persistent UI]
+    end
+```
 
 ## 2. The Ingestion Layer
 

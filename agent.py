@@ -31,7 +31,7 @@ def process_text(text: str) -> dict:
         raise ValueError("GEMINI_API_KEY environment variable is not set.")
 
     # --- Initialize Model ---
-    llm = ChatGoogleGenerativeAI(model="gemini-3.1-pro", temperature=0, api_key=api_key)
+    llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0, api_key=api_key)
 
     classifier_llm = llm.with_structured_output(ClassificationResult)
     study_llm = llm.with_structured_output(StudyNotes)

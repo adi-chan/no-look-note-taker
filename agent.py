@@ -1,7 +1,11 @@
 import os
+import warnings
 from typing import TypedDict, Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import StateGraph, START, END
+
+warnings.filterwarnings("ignore", message=".*MALFORMED_RESPONSE is not a valid FinishReason.*")
+warnings.filterwarnings("ignore", message=".*HumanMessage with empty content was removed.*")
 
 from prompts import (
     ClassificationResult,

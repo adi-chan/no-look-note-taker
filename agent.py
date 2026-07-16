@@ -31,7 +31,7 @@ def process_text(text: str) -> dict:
         raise ValueError("GEMINI_API_KEY environment variable is not set.")
 
     # --- Initialize Model ---
-    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0, api_key=api_key)
+    llm = ChatGoogleGenerativeAI(model="gemini-3.1-pro", temperature=0, api_key=api_key)
 
     classifier_llm = llm.with_structured_output(ClassificationResult)
     study_llm = llm.with_structured_output(StudyNotes)
@@ -132,7 +132,7 @@ def process_audio(audio_bytes: bytes, mime_type: str) -> dict:
     import base64
     from langchain_core.messages import HumanMessage
 
-    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0, api_key=api_key)
+    llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0, api_key=api_key)
     
     # We ask Gemini to transcribe the audio precisely
     message = HumanMessage(

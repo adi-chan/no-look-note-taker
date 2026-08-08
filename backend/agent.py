@@ -1,8 +1,11 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import warnings
 from typing import TypedDict, Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import StateGraph, START, END
+from datetime import datetime
 
 warnings.filterwarnings("ignore", message=".*MALFORMED_RESPONSE is not a valid FinishReason.*")
 warnings.filterwarnings("ignore", message=".*HumanMessage with empty content was removed.*")
@@ -15,7 +18,10 @@ from prompts import (
     CLASSIFIER_SYSTEM_PROMPT,
     STUDY_SYSTEM_PROMPT,
     TASK_SYSTEM_PROMPT,
-    CALENDAR_SYSTEM_PROMPT
+    CALENDAR_SYSTEM_PROMPT,
+    CHAT_SYSTEM_PROMPT,
+    GRAPH_SYSTEM_PROMPT,
+    KnowledgeGraph
 )
 
 # --- State Definition ---
@@ -27,12 +33,13 @@ class AgentState(TypedDict):
     calendar_events: Optional[CalendarEventList]
     final_output: dict
 
-def process_text(text: str) -> dict:
+def process_text(text: str, api_key: str = None) -> dict:
     """Helper function to run the graph and return the final structured output."""
     
-    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        raise ValueError("GEMINI_API_KEY environment variable is not set.")
+        api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY environment variable or header is not set.")
 
     # --- Initialize Model ---
     llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0, api_key=api_key)
@@ -69,8 +76,9 @@ def process_text(text: str) -> dict:
             return {"tasks": None}
         
         raw_input = state["raw_input"]
+        current_time_context = f"\n\nCRITICAL CONTEXT: The current local date and time is {datetime.now().isoformat()}."
         response = task_llm.invoke([
-            ("system", TASK_SYSTEM_PROMPT),
+            ("system", TASK_SYSTEM_PROMPT + current_time_context),
             ("human", raw_input)
         ])
         return {"tasks": response}
@@ -81,8 +89,9 @@ def process_text(text: str) -> dict:
             return {"calendar_events": None}
         
         raw_input = state["raw_input"]
+        current_time_context = f"\n\nCRITICAL CONTEXT: The current local date and time is {datetime.now().isoformat()}."
         response = calendar_llm.invoke([
-            ("system", CALENDAR_SYSTEM_PROMPT),
+            ("system", CALENDAR_SYSTEM_PROMPT + current_time_context),
             ("human", raw_input)
         ])
         return {"calendar_events": response}
@@ -127,11 +136,12 @@ def process_text(text: str) -> dict:
     result = app.invoke(initial_state)
     return result.get("final_output", {})
 
-def process_audio(audio_bytes: bytes, mime_type: str) -> dict:
+def process_audio(audio_bytes: bytes, mime_type: str, api_key: str = None) -> dict:
     """Helper function to transcribe audio and run it through the graph."""
-    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        raise ValueError("GEMINI_API_KEY environment variable is not set.")
+        api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY environment variable or header is not set.")
 
     import base64
     from langchain_core.messages import HumanMessage
@@ -154,4 +164,55 @@ def process_audio(audio_bytes: bytes, mime_type: str) -> dict:
     transcription = response.content
     
     # Process the resulting transcription through our normal pipeline
-    return process_text(transcription)
+    return process_text(transcription, api_key=api_key)
+
+def chat_with_brain(data: dict, query: str, api_key: str = None) -> str:
+    """Answers a user's query based on their entire data dump."""
+    if not api_key:
+        api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY environment variable or header is not set.")
+
+    llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0, api_key=api_key)
+    
+    context = f"USER DATA:\n{data}\n\nUSER QUESTION:\n{query}"
+    
+    response = llm.invoke([
+        ("system", CHAT_SYSTEM_PROMPT),
+        ("human", context)
+    ])
+    
+    answer = response.content
+    if isinstance(answer, list):
+        return " ".join([block.get("text", "") for block in answer if isinstance(block, dict) and block.get("type") == "text"])
+    return str(answer)
+
+def generate_knowledge_graph(data: dict, api_key: str = None) -> dict:
+    """Generates a structured knowledge graph from the user's data."""
+    if not api_key:
+        api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY environment variable or header is not set.")
+
+    llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0.1, api_key=api_key)
+    graph_llm = llm.with_structured_output(KnowledgeGraph)
+    
+    context = f"USER DATA:\n{data}"
+    
+    response = graph_llm.invoke([
+        ("system", GRAPH_SYSTEM_PROMPT),
+        ("human", context)
+    ])
+    
+    # Convert pydantic models in response to dict
+    def to_dict(obj):
+        if hasattr(obj, 'model_dump'):
+            return obj.model_dump()
+        elif hasattr(obj, 'dict'):
+            return obj.dict()
+        return obj
+
+    if not response:
+        return {"nodes": [], "links": []}
+        
+    return to_dict(response)

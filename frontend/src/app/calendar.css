@@ -1,0 +1,129 @@
+/* Custom Dark Theme for React Big Calendar */
+.rbc-calendar {
+  font-family: inherit;
+  color: #e5e7eb; /* text-gray-200 */
+}
+
+/* Toolbar */
+.rbc-toolbar button {
+  color: #e5e7eb;
+  border-color: #374151; /* border-gray-700 */
+}
+.rbc-toolbar button:active,
+.rbc-toolbar button.rbc-active {
+  background-color: #374151;
+  color: #fff;
+  border-color: #4b5563;
+  box-shadow: none;
+}
+.rbc-toolbar button:hover {
+  background-color: #1f2937; /* bg-gray-800 */
+}
+
+/* Grid & Borders */
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view,
+.rbc-header,
+.rbc-day-bg,
+.rbc-month-row,
+.rbc-time-content,
+.rbc-time-header-content,
+.rbc-timeslot-group,
+.rbc-time-header.rbc-overflowing {
+  border-color: #374151; /* border-gray-700 */
+}
+
+/* Day Backgrounds */
+.rbc-off-range-bg {
+  background-color: #111827; /* bg-gray-900 */
+}
+.rbc-today {
+  background-color: #1e1b4b; /* bg-indigo-950 */
+}
+
+/* Events */
+.rbc-event {
+  background-color: #4f46e5; /* bg-indigo-600 */
+  border-color: #4338ca; /* bg-indigo-700 */
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+.rbc-event:hover {
+  background-color: #6366f1; /* hover bg-indigo-500 */
+}
+
+/* Popups (for +X more) */
+.rbc-overlay {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  padding: 8px;
+}
+.rbc-overlay-header {
+  border-bottom: 1px solid #374151;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #f3f4f6;
+}
+
+/* Text Colors */
+.rbc-header,
+.rbc-button-link {
+  color: #d1d5db; /* text-gray-300 */
+  font-weight: 500;
+}
+.rbc-off-range {
+  color: #6b7280; /* text-gray-500 */
+}
+
+/* Agenda View */
+.rbc-agenda-view table.rbc-agenda-table {
+  border-color: #374151;
+}
+.rbc-agenda-view table.rbc-agenda-table tbody > tr > td + td {
+  border-left-color: #374151;
+}
+.rbc-agenda-view table.rbc-agenda-table thead > tr > th {
+  border-bottom-color: #374151;
+}
+.rbc-agenda-view table.rbc-agenda-table tbody > tr + tr {
+  border-top-color: #374151;
+}
+
+/* Current Time Indicator */
+.rbc-current-time-indicator {
+  background-color: #f43f5e; /* rose-500 */
+}
+
+/* Animations & Polish */
+.rbc-calendar {
+  transition: all 0.3s ease;
+}
+
+.rbc-month-row, .rbc-day-bg {
+  transition: background-color 0.2s ease;
+}
+
+.rbc-day-bg:hover {
+  background-color: #1f2937; /* hover bg-gray-800 */
+}
+
+/* Event animations */
+.rbc-event {
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.rbc-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+  background-color: #6366f1; /* hover bg-indigo-500 */
+}
+
+.rbc-toolbar button {
+  transition: all 0.2s ease;
+  border-radius: 6px;
+}

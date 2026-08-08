@@ -13,7 +13,7 @@ class StudyNotes(BaseModel):
 
 class Task(BaseModel):
     title: str = Field(description="A concise title for the task.")
-    deadline: Optional[str] = Field(description="The deadline for the task, if mentioned.")
+    deadline: Optional[str] = Field(description="The deadline for the task. IMPORTANT: Must be formatted as a valid ISO 8601 datetime string (e.g. 2026-07-20T17:00:00).")
     notes: Optional[str] = Field(description="Any extra context or details about the task.")
 
 class TaskList(BaseModel):
@@ -21,12 +21,26 @@ class TaskList(BaseModel):
 
 class CalendarEvent(BaseModel):
     title: str = Field(description="The title of the event.")
-    start_time: str = Field(description="The start time/date of the event.")
+    start_time: str = Field(description="The start time/date of the event. IMPORTANT: Must be formatted as a valid ISO 8601 datetime string (e.g. 2026-07-20T17:00:00).")
     location: Optional[str] = Field(description="Where the event takes place, if mentioned.")
     description: Optional[str] = Field(description="Details or prep work required for the event.")
 
 class CalendarEventList(BaseModel):
     events: List[CalendarEvent] = Field(description="A list of calendar events extracted from the input.")
+
+class GraphNode(BaseModel):
+    id: str = Field(description="A unique identifier for the node (usually the concept name).")
+    label: str = Field(description="The display label for the node.")
+    group: str = Field(description="The category or group this node belongs to (e.g. 'task', 'event', 'concept', 'person').")
+
+class GraphLink(BaseModel):
+    source: str = Field(description="The id of the source node.")
+    target: str = Field(description="The id of the target node.")
+    label: str = Field(description="A short label describing how they are connected.")
+
+class KnowledgeGraph(BaseModel):
+    nodes: List[GraphNode] = Field(description="A list of conceptual nodes.")
+    links: List[GraphLink] = Field(description="A list of links connecting the nodes.")
 
 # --- System Prompts ---
 
@@ -58,3 +72,13 @@ Extract all events, meetings, or exams from the raw chaotic text that belong on 
 - Extract the title, time, and location.
 - Include any relevant context in the description.
 - Ignore general to-do list items unless they are tied to a specific block of time."""
+
+CHAT_SYSTEM_PROMPT = """You are a highly intelligent personal assistant with total access to the user's brain dumps (notes, tasks, calendar events).
+Use the provided JSON data of their life to answer their question directly, accurately, and conversationally.
+If the answer is not in the data, simply state that you don't know."""
+
+GRAPH_SYSTEM_PROMPT = """You are a knowledge architect.
+Given a raw JSON dump of the user's notes, tasks, and calendar events, you must extract an interconnected Knowledge Graph.
+- Create 'nodes' for key concepts, tasks, events, and people.
+- Create 'links' that connect related nodes (e.g., a task belonging to a project, a concept related to another concept).
+- Be thorough but avoid creating disconnected or overly vague nodes."""

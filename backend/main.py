@@ -54,6 +54,10 @@ async def process_audio_endpoint(file: UploadFile = File(...), x_gemini_api_key:
         audio_bytes = await file.read()
         mime_type = file.content_type
         
+        # Gemini API expects audio/mp3, but browsers send audio/mpeg for .mp3 files
+        if mime_type == "audio/mpeg":
+            mime_type = "audio/mp3"
+            
         results = agent.process_audio(audio_bytes, mime_type, api_key=x_gemini_api_key)
         
         def to_dict(obj):

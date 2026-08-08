@@ -2,7 +2,7 @@
 
 import { Check, Calendar as CalendarIcon, Trash2 } from "lucide-react";
 import 'katex/dist/katex.min.css'; 
-import format from 'date-fns/format';
+import { format } from 'date-fns';
 
 function formatDisplayDate(dateStr: string) {
   try {

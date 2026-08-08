@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { LogIn, Brain, NotebookPen, Mail, Lock, Loader2, Calendar as CalendarIcon, MessageSquare, Network } from "lucide-react";
+import { LogIn, Brain, NotebookPen, Mail, Lock, Loader2, Calendar as CalendarIcon, MessageSquare, Network, User } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import axios from "axios";
@@ -17,7 +17,7 @@ export default function Home() {
   
   // Auth Form State
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -205,18 +205,21 @@ export default function Home() {
     e.preventDefault();
     setAuthError("");
     setIsAuthenticating(true);
+    
+    const fakeEmail = username.toLowerCase().trim() + '@nolook.local';
+    
     try {
       if (isLogin) {
-        await signInWithEmail(email, password);
+        await signInWithEmail(fakeEmail, password);
       } else {
-        await signUpWithEmail(email, password);
+        await signUpWithEmail(fakeEmail, password);
       }
     } catch (error: any) {
       console.error("Auth error", error);
       // Clean up firebase error message
       let msg = error.message;
-      if (msg.includes("auth/invalid-credential")) msg = "Invalid email or password.";
-      if (msg.includes("auth/email-already-in-use")) msg = "Email already in use.";
+      if (msg.includes("auth/invalid-credential")) msg = "Invalid username or password.";
+      if (msg.includes("auth/email-already-in-use")) msg = "Username already in use.";
       if (msg.includes("auth/weak-password")) msg = "Password should be at least 6 characters.";
       if (msg.includes("auth/configuration-not-found")) msg = "Auth Provider not enabled in Firebase Console.";
       setAuthError(msg);
@@ -270,16 +273,16 @@ export default function Home() {
           
           <form onSubmit={handleEmailAuth} className="w-full space-y-4 mb-6">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-300">Email</label>
+              <label className="text-sm font-medium text-gray-300">Username</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <input 
-                  type="email" 
+                  type="text" 
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full bg-gray-900/50 border border-gray-700 rounded-lg py-2.5 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-                  placeholder="you@example.com"
+                  placeholder="cooluser123"
                 />
               </div>
             </div>
@@ -434,12 +437,12 @@ export default function Home() {
               <img src={user.photoURL} alt="Profile" className="w-10 h-10 rounded-full border border-gray-700" />
             ) : (
               <div className="w-10 h-10 rounded-full bg-indigo-900/50 border border-indigo-500/30 flex items-center justify-center">
-                <span className="text-sm font-bold text-indigo-300">{user.email?.[0].toUpperCase()}</span>
+                <span className="text-sm font-bold text-indigo-300">{user.email?.replace('@nolook.local', '')[0].toUpperCase()}</span>
               </div>
             )}
             <div className="flex-1 overflow-hidden">
               <p className="text-sm font-medium text-white truncate">{user.displayName || 'User'}</p>
-              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              <p className="text-xs text-gray-500 truncate">{user.email?.replace('@nolook.local', '')}</p>
             </div>
           </div>
           <button 
